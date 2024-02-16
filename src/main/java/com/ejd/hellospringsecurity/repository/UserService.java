@@ -1,6 +1,7 @@
 package com.ejd.hellospringsecurity.repository;
 
 import com.ejd.hellospringsecurity.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,10 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-
-  @Autowired
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
      User user = userRepository.findByEmail(email);
