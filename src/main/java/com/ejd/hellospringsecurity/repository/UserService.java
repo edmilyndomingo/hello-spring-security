@@ -2,7 +2,6 @@ package com.ejd.hellospringsecurity.repository;
 
 import com.ejd.hellospringsecurity.model.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,5 +25,9 @@ public class UserService implements UserDetailsService {
         .password(user.getPassword())
         .authorities(new SimpleGrantedAuthority(user.getRole()))
         .build();
+  }
+
+  public User createUser(User user) {
+    return userRepository.save(user);
   }
 }

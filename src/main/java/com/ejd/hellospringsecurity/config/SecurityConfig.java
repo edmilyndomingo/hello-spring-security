@@ -13,18 +13,15 @@ public class SecurityConfig {
 
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-      http.authorizeHttpRequests((requests) -> requests
+      http.csrf()
+          .disable()
+        .authorizeHttpRequests((requests) -> requests
         .requestMatchers("/account/details","/balance/details","/loan/details","/card/details").authenticated()
-        .requestMatchers("/notices","/contact").permitAll())
+        .requestMatchers("/notice","/contact","/auth/register").permitAll())
       .formLogin(Customizer.withDefaults())
       .httpBasic(Customizer.withDefaults());
       return http.build();
   }
-
-//  @Bean
-//  public UserDetailsService userDetailsService(DataSource dataSource) {
-//    return new JdbcUserDetailsManager(dataSource);
-//  }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
