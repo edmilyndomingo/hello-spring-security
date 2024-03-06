@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@Service
 @RequiredArgsConstructor
+@Deprecated
 public class UserService implements UserDetailsService {
   private final UserRepository userRepository;
   @Override
