@@ -1,22 +1,21 @@
 package com.ejd.hellospringsecurity.repository;
 
-import com.ejd.hellospringsecurity.model.User;
+import com.ejd.hellospringsecurity.model.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @RequiredArgsConstructor
 @Deprecated
 public class UserService implements UserDetailsService {
-  private final UserRepository userRepository;
+  private final CustomerRepository customerRepository;
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-     User user = userRepository.findByEmail(email);
+     Customer user = customerRepository.findByEmail(email);
      if (user == null) {
        throw new UsernameNotFoundException("User details not found for the email: "+ email);
      }
@@ -27,7 +26,7 @@ public class UserService implements UserDetailsService {
         .build();
   }
 
-  public User createUser(User user) {
-    return userRepository.save(user);
+  public Customer createUser(Customer user) {
+    return customerRepository.save(user);
   }
 }

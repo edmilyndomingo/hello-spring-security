@@ -1,7 +1,8 @@
 package com.ejd.hellospringsecurity.config;
 
+import com.ejd.hellospringsecurity.model.Customer;
 import com.ejd.hellospringsecurity.model.User;
-import com.ejd.hellospringsecurity.repository.UserRepository;
+import com.ejd.hellospringsecurity.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,14 +20,14 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
-  private final UserRepository userRepository;
+  private final CustomerRepository customerRepository;
   private final PasswordEncoder passwordEncoder;
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     final String email = authentication.getName();
     final String password = authentication.getCredentials().toString();
-    final User user = userRepository.findByEmail(email);
+    final Customer user = customerRepository.findByEmail(email);
     if (user == null) {
       throw new UsernameNotFoundException("User details not found for the email: "+ email);
     }
