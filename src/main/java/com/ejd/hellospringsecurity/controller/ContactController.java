@@ -17,7 +17,7 @@ import java.util.Random;
 public class ContactController {
 
   private final ContactRepository contactRepository;
-  @PostMapping("/contact")
+  @PostMapping
   public Contact saveContactInquiryDetails(@RequestBody Contact contact) {
     contact.setContactId(getServiceReqNumber());
     contact.setCreateDt(new Date(System.currentTimeMillis()));

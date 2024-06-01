@@ -5,6 +5,7 @@ import com.ejd.hellospringsecurity.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class AuthController {
   }
 
   @GetMapping("/user")
-  public Customer getUser(@RequestParam String email) {
-    return customerRepository.findByEmail(email);
+  public Customer getUserDetailsAfterLogin(Authentication authentication) {
+    return customerRepository.findByEmail(authentication.getName());
   }
 }

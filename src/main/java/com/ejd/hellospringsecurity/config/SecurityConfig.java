@@ -1,27 +1,67 @@
 package com.ejd.hellospringsecurity.config;
 
+import com.ejd.hellospringsecurity.filter.CsrfCookieFilter;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 
 @Configuration
 public class SecurityConfig {
 
   @Bean
-  SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-      http.csrf()
-          .disable()
+  SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+      http
+          // securityContext().requireExplicitSave(false) - we are telling the spring security framework
+          // im not going to take the responsibility of saving the authentication details
+          // inside the securitycontextframework and letting the framework to do all the magic for me
+          // by setting this to fault, we're giving this responsibility of generating the JSESSIONID
+          // and storing of auth details to the framework
+          // and sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+          // allows accessing protected url without asking for your credentials everytime
+          .securityContext().requireExplicitSave(false)
+          .and().sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+        .cors().configurationSource(corsConfigurationSource)
+        .and()
+        .csrf((configurer) ->
+          configurer.csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+            .ignoringRequestMatchers("/auth/register")
+            // withHttpOnlyFalse allows javascript code to read the cookie value
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+        .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
         .authorizeHttpRequests((requests) -> requests
-        .requestMatchers("/account/details","/balance/details","/loan/details","/card/details", "/auth/user").authenticated()
-        .requestMatchers("/notice","/contact","/auth/register").permitAll())
+          .requestMatchers("/account/details","/balance/details","/loan/details","/card/details", "/auth/user", "/contact").authenticated()
+          .requestMatchers("/notice","/auth/register").permitAll())
       .formLogin(Customizer.withDefaults())
       .httpBasic(Customizer.withDefaults());
       return http.build();
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    return request -> {
+      CorsConfiguration config = new CorsConfiguration();
+      config.setAllowedOrigins(Collections.singletonList("*"));
+      config.setAllowedMethods(Collections.singletonList("*"));
+      config.setAllowCredentials(true);
+      config.setAllowedHeaders(Collections.singletonList("*"));
+      config.setMaxAge(3600L);
+      return config;
+    };
   }
 
   @Bean
