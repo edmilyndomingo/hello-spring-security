@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -36,7 +37,12 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
       throw new BadCredentialsException("Invalid Password");
     }
 
-    return new UsernamePasswordAuthenticationToken(email, password, List.of(new SimpleGrantedAuthority(user.getRole())));
+    List<SimpleGrantedAuthority> authorities = user.getAuthorities()
+        .stream()
+        .map(a -> new SimpleGrantedAuthority(a.getName()))
+        .toList();
+
+    return new UsernamePasswordAuthenticationToken(email, password, authorities);
   }
 
   @Override
