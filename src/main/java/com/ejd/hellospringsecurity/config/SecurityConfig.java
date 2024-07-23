@@ -1,19 +1,18 @@
 package com.ejd.hellospringsecurity.config;
 
+import com.ejd.hellospringsecurity.filter.AuthoritiesLoggingAfterFilter;
 import com.ejd.hellospringsecurity.filter.CsrfCookieFilter;
-import jakarta.servlet.http.HttpServletRequest;
+import com.ejd.hellospringsecurity.filter.RequestValidationBeforeFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -42,7 +41,9 @@ public class SecurityConfig {
             .ignoringRequestMatchers("/auth/register")
             // withHttpOnlyFalse allows javascript code to read the cookie value
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+        .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
         .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+        .addFilterAfter(new AuthoritiesLoggingAfterFilter(), CsrfCookieFilter.class)
         .authorizeHttpRequests((requests) -> requests
           .requestMatchers("/auth/user").authenticated()
           .requestMatchers("/account/details").hasRole("USER")
